@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Response } from 'express';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   @Get()
   getHello(): string {
@@ -13,6 +13,11 @@ export class AppController {
 
   @Post('/reply')
   async chatReply(@Body() body) {
-    return await this.appService.getUserReply(body.chat);
+    try {
+      return await this.appService.getUserReply(body.chat);
+    } catch (err) {
+      console.error(err.message)
+      throw new HttpException(`error on user reply ${err.message}`, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
   }
 }
