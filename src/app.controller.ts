@@ -14,7 +14,7 @@ export class AppController {
   @Post('/reply')
   async chatReply(@Body() body) {
     try {
-      return await this.appService.getUserReply(body.chat);
+      return await this.appService.getUserReply(body.chat, body.contact?.phone);
     } catch (err) {
       console.error(err.message)
       throw new HttpException(`error on user reply ${err.message}`, HttpStatus.INTERNAL_SERVER_ERROR)
