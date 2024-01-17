@@ -1,6 +1,5 @@
 import { Body, Controller, Get, HttpException, HttpStatus, Post, Res } from '@nestjs/common';
 import { AppService } from './app.service';
-import { Response } from 'express';
 
 @Controller()
 export class AppController {
@@ -8,13 +7,14 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return this.appService.getHello();
+    return this.appService.getHello()
   }
 
   @Post('/reply')
   async chatReply(@Body() body) {
+    console.log("body", body)
     try {
-      return await this.appService.getUserReply(body.chat, body.contact?.phone);
+      return await this.appService.getUserReply(body.chat, body.contact?.id)
     } catch (err) {
       console.error(err.message)
       throw new HttpException(`error on user reply ${err.message}`, HttpStatus.INTERNAL_SERVER_ERROR)

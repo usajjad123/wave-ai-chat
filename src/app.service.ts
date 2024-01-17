@@ -7,6 +7,7 @@ import {
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
 } from 'langchain/prompts';
+import { sendSms } from './sms';
 
 interface IChat {
   from: string;
@@ -19,7 +20,7 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async getUserReply(chat: IChat[], phone: string) {
+  async getUserReply(chat: IChat[], contactId: number) {
     const model = new ChatOpenAI({
       modelName: 'gpt-4-0613',
       openAIApiKey: process.env.OPENAI_KEY,
@@ -63,8 +64,11 @@ export class AppService {
 
     const lastReply = chat[chat.length - 1].message;
 
-    return await chain.call({
+    const aiReply = await chain.call({
       input: lastReply,
     });
+
+    await sendSms(contactId, aiReply.response)
+    return aiReply
   }
 }
