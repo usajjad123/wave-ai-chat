@@ -15,12 +15,12 @@ export class AppController {
   async chatReply(@Body() body) {
     console.log("body", body)
     logToSlack(`request receieved with body: ${JSON.stringify(body, null, 2)}`)
-    try {
-      return await this.appService.getUserReply(body.chat, body.contact?.id)
-    } catch (err) {
+    this.appService.getUserReply(body.chat, body.contact?.id).catch(err => {
       console.error(err.message)
       logToSlack(err.message)
       throw new HttpException(`error on user reply ${err.message}`, HttpStatus.INTERNAL_SERVER_ERROR)
-    }
+    })
+
+    return 'OK'
   }
 }
