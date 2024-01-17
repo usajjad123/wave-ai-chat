@@ -9,7 +9,6 @@ export const sendSms = async (contactId: number, message: string) => {
 
   const response = await axios.request({
     method: 'post',
-    maxBodyLength: Infinity,
     url: `${process.env.SERVER_URL}/api/send-message`,
     headers: {
       'Content-Type': 'application/json'
