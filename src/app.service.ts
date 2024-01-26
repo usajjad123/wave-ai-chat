@@ -42,11 +42,9 @@ export class AppService {
     Once the Number of tickets are gathered. ask a final confirmation of purchase, the total of each ticket is $10.00*
     Do not discuss anything if the conversation goes outside of the scope.
     Keep giving current bookiung status in json format, including numberOfTickets, and totalPrice
-    `
+    `;
 
-    const initialMessages = [
-      SystemMessagePromptTemplate.fromTemplate(prompt),
-    ];
+    const initialMessages = [SystemMessagePromptTemplate.fromTemplate(prompt)];
 
     const chain = new ConversationChain({
       llm: model,
@@ -68,7 +66,9 @@ export class AppService {
       input: lastReply,
     });
 
-    await sendSms(contactId, aiReply.response)
-    return aiReply
+    console.log('aiReply', aiReply);
+
+    await sendSms(contactId, aiReply.response);
+    return aiReply;
   }
 }
