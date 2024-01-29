@@ -8,6 +8,7 @@ import {
   SystemMessagePromptTemplate,
 } from 'langchain/prompts';
 import { sendSms } from './sms';
+import { logToSlack } from './slack.log';
 
 interface IChat {
   from: string;
@@ -67,6 +68,7 @@ export class AppService {
     });
 
     console.log('aiReply', aiReply);
+    logToSlack(JSON.stringify(aiReply, null, 2));
 
     await sendSms(contactId, aiReply.response);
     return aiReply;
