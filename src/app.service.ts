@@ -62,6 +62,7 @@ export class AppService {
     });
 
     const lastReply = chat[chat.length - 1].message;
+    logToSlack(lastReply);
 
     const aiReply = await chain.call({
       input: lastReply,
