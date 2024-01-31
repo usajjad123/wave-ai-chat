@@ -22,6 +22,7 @@ export class AppService {
   }
 
   async getUserReply(chat: IChat[], contactId: number) {
+    chat.reverse();
     logToSlack(JSON.stringify({ chat }, null, 2));
     const model = new ChatOpenAI({
       modelName: 'gpt-4-0613',
