@@ -21,7 +21,7 @@ export class AppController {
 
   @Post('/reply')
   async chatReply(@Body() body) {
-    // logToSlack(`request receieved with body: ${JSON.stringify(body, null, 2)}`);
+    logToSlack(`request receieved with body: ${JSON.stringify(body, null, 2)}`);
     logToSlack("request received")
     this.appService.getUserReply(body.chat, body.contact?.id, body.event?.id).catch((err) => {
       console.error(err.message);
