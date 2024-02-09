@@ -9,6 +9,7 @@ import {
 } from 'langchain/prompts';
 import { sendSms } from './sms';
 import { logToSlack } from './slack.log';
+import { getPaymentLink } from './payment';
 
 interface IChat {
   from: string;
@@ -21,9 +22,9 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async getUserReply(chat: IChat[], contactId: number) {
+  async getUserReply(chat: IChat[], contactId: number, eventId: number) {
     chat.reverse();
-    logToSlack(JSON.stringify({ chat }, null, 2));
+    // logToSlack(JSON.stringify({ chat }, null, 2));
     const model = new ChatOpenAI({
       modelName: 'gpt-4-0613',
       openAIApiKey: process.env.OPENAI_KEY,
@@ -44,7 +45,7 @@ export class AppService {
     These are the game details *${template}*
     Once the Number of tickets are gathered. ask a final confirmation of purchase, the total of each ticket is $10.00*
     Do not discuss anything if the conversation goes outside of the scope.
-    Keep giving current bookiung status in json format, including numberOfTickets, and totalPrice
+    Keep giving current booking status in json format, including numberOfTickets, and totalPrice.
     `;
 
     const initialMessages = [SystemMessagePromptTemplate.fromTemplate(prompt)];
@@ -71,9 +72,27 @@ export class AppService {
     });
 
     console.log('aiReply', aiReply);
-    logToSlack(JSON.stringify(aiReply, null, 2));
+
+    let response = aiReply.response;
+    const payloadStr = response.match('{.*}');
+    if (payloadStr) {
+      response = response.replace(payloadStr, '');
+
+      try {
+        const payload = JSON.parse(payloadStr);
+        const paymentLink = await getPaymentLink(
+          eventId,
+          payload.numberOfTickets,
+        );
+        // console.log({ paymentLink });
+        response += `Here is the payment link for ${payload.numberOfTickets} tickets: ${paymentLink.checkout_link.url}`;
+      } catch (err) {
+        logToSlack(err.message);
+      }
+    }
+    logToSlack(JSON.stringify({ response }, null, 2));
 
     await sendSms(contactId, aiReply.response);
-    return aiReply;
+    return response;
   }
 }
