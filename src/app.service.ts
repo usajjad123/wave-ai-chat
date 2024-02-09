@@ -76,6 +76,7 @@ export class AppService {
     let response = aiReply.response;
     const payloadStr = response.match('{.*}');
     if (payloadStr) {
+      logToSlack(`${payloadStr} matched`)
       response = response.replace(payloadStr, '');
 
       try {
