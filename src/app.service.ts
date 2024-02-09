@@ -74,8 +74,9 @@ export class AppService {
     console.log('aiReply', aiReply);
 
     let response = aiReply.response;
-    const payloadStr = response.match('{.*}');
-    if (payloadStr) {
+    const payloadMatch = response.match(/\{(.|\n)*\}/);
+    if (payloadMatch) {
+      const payloadStr = payloadMatch[0]
       logToSlack(`${payloadStr} matched`)
       response = response.replace(payloadStr, '');
 
@@ -93,7 +94,7 @@ export class AppService {
     }
     logToSlack(JSON.stringify({ response }, null, 2));
 
-    await sendSms(contactId, aiReply.response);
+    await sendSms(contactId, response);
     return response;
   }
 }
