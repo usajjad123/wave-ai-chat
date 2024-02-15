@@ -22,7 +22,12 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async getUserReply(chat: IChat[], contactId: number, eventId: number) {
+  async getUserReply(
+    chat: IChat[],
+    contactId: number,
+    eventId: number,
+    eventPrice: number,
+  ) {
     chat.reverse();
     logToSlack(JSON.stringify({ chat }, null, 2));
     const model = new ChatOpenAI({
@@ -43,7 +48,7 @@ export class AppService {
     Find out how many tickets I would like to purchase for.
     Limit your response to 85 characters.
     These are the game details *${template}*
-    Once the Number of tickets are gathered. ask a final confirmation of purchase, the total of each ticket is $10.00*
+    Once the Number of tickets are gathered. ask a final confirmation of purchase, the total of each ticket is $${eventPrice}*
     Do not discuss anything if the conversation goes outside of the scope.
     Keep giving current booking status in json format, including numberOfTickets, and totalPrice.
     `;
@@ -76,8 +81,8 @@ export class AppService {
     let response = aiReply.response;
     const payloadMatch = response.match(/\{(.|\n)*\}/);
     if (payloadMatch) {
-      const payloadStr = payloadMatch[0]
-      logToSlack(`${payloadStr} matched`)
+      const payloadStr = payloadMatch[0];
+      logToSlack(`${payloadStr} matched`);
       response = response.replace(payloadStr, '');
 
       try {
@@ -87,7 +92,7 @@ export class AppService {
           payload.numberOfTickets,
         );
         // console.log({ paymentLink });
-        response += `Here is the payment link for ${payload.numberOfTickets} tickets: ${paymentLink.checkout_link.url}`;
+        response += `Here is the payment link for ${payload.numberOfTickets} tickets: <a href="${paymentLink.checkout_link.url}">Payment Link</a>`;
       } catch (err) {
         logToSlack(err.message);
       }
