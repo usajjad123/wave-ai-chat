@@ -89,6 +89,7 @@ export class AppService {
         const payload = JSON.parse(payloadStr);
         const paymentLink = await getPaymentLink(
           eventId,
+          contactId,
           payload.numberOfTickets,
         );
         // console.log({ paymentLink });
