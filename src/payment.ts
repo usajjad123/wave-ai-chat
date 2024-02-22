@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { logToSlack } from './slack.log';
 
 export const getPaymentLink = async (event_id: number, quantity: number) => {
+  logToSlack(`getPaymentLink -> { event_id: ${event_id}, quantity: ${quantity} }`)
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
