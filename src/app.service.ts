@@ -10,6 +10,7 @@ import {
 import { sendSms } from './sms';
 import { logToSlack } from './slack.log';
 import { getPaymentLink } from './payment';
+import { optOutContact } from './opt-out';
 
 interface IChat {
   from: string;
@@ -50,7 +51,8 @@ export class AppService {
     These are the game details *${template}*
     Once the Number of tickets are gathered. ask a final confirmation of purchase, the total of each ticket is $${eventPrice}*
     Do not discuss anything if the conversation goes outside of the scope.
-    Keep giving current booking status in json format, including numberOfTickets, and totalPrice.
+    Keep giving current booking status in json format, including numberOfTickets, and totalPrice, optOut.
+    If user doesn't show interest, please confirm them politely if they want to opt-out for future reminders and provide 'optOut' field to be true
     `;
 
     const initialMessages = [SystemMessagePromptTemplate.fromTemplate(prompt)];
@@ -87,13 +89,18 @@ export class AppService {
 
       try {
         const payload = JSON.parse(payloadStr);
-        const paymentLink = await getPaymentLink(
-          eventId,
-          contactId,
-          payload.numberOfTickets,
-        );
-        // console.log({ paymentLink });
-        response += `Here is the payment link for ${payload.numberOfTickets} tickets: <a href="${paymentLink.checkout_link.url}">Payment Link</a>`;
+        if (payload.optOut) {
+          // call the opt-out api for this contact
+          await optOutContact(contactId);
+        } else if (payload.numberOfTickets > 0) {
+          const paymentLink = await getPaymentLink(
+            eventId,
+            contactId,
+            payload.numberOfTickets,
+          );
+          // console.log({ paymentLink });
+          response += `Here is the payment link for ${payload.numberOfTickets} tickets: <a href="${paymentLink.checkout_link.url}">Payment Link</a>`;
+        }
       } catch (err) {
         logToSlack(err.message);
       }
