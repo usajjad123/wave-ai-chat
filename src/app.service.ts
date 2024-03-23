@@ -106,8 +106,7 @@ export class AppService {
       }
     }
     logToSlack(JSON.stringify({ response }, null, 2));
-
-    await sendSms(contactId, response);
+    if (response) await sendSms(contactId, response);
     return response;
   }
 }

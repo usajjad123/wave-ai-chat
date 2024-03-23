@@ -6,7 +6,7 @@ export const getPaymentLink = async (event_id: number, contact_id: number, quant
   let config = {
     method: 'post',
     maxBodyLength: Infinity,
-    url: 'https://api.wave.tickets/api/payment/checkout',
+    url: `${process.env.SERVER_URL}/api/payment/checkout`,
     headers: {
       'Content-Type': 'application/json',
     },
